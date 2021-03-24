@@ -1,68 +1,61 @@
 package com.cox.mysqlrestlms.controller;
 
 import com.cox.mysqlrestlms.model.Student;
-import com.cox.mysqlrestlms.repo.StudentRepo;
+import com.cox.mysqlrestlms.service.StudentService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
+@RequestMapping(value = "/api/students")
+@CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
+@Slf4j
 public class StudentController {
 
     @Autowired
-    StudentRepo studentRepo;
+    StudentService studentService;
 
-    @RequestMapping(value = "/api/students", method = RequestMethod.GET)
+    @GetMapping
     public ResponseEntity<List<Student>> getAllStudents(){
-
-        List<Student> students = new ArrayList<Student>();
-        studentRepo.findAll().forEach(students::add);
-
-        if (students.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(students, HttpStatus.OK);
+        Optional<List<Student>> allStudents = studentService.getAllStudents();
+        return allStudents.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 
-    @RequestMapping(value = "/api/students", method = RequestMethod.POST)
+    @GetMapping(value="/{id}")
+    public ResponseEntity<Student> getStudentById(@PathVariable Integer id){
+        Optional<Student> currentStudent = studentService.getStudentById(id);
+        return currentStudent.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    }
+
+    @DeleteMapping(value="/{id}")
+    public void deleteStudentIfExists(@PathVariable Integer id){
+        log.info(String.valueOf(id));
+        if(studentService.isStudentExists(id)){
+            studentService.deleteStudent(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "id not found");
+        }
+    }
+
+    @PostMapping
     public ResponseEntity<Student> createStudent(@Valid @RequestBody Student student) {
-        try {
-            Student currStudent = studentRepo
-                    .save(new Student(student.getStudentId(), student.getStudentName(), student.getStudentEmail()));
-            return new ResponseEntity<>(currStudent, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        Student currStudent = studentService.createStudent(student);
+        return ResponseEntity.ok(currStudent);
     }
 
-    @RequestMapping(value="/api/students/{studentID}", method = RequestMethod.PUT)
-    public ResponseEntity<Student> updateStudent(@PathVariable int studentID, @Valid @RequestBody Student student) {
-        Optional<Student> currStudentPresent = studentRepo.findById(studentID);
-        if(currStudentPresent.isPresent()){
-            Student s = currStudentPresent.get();
-            s.setStudentName(student.getStudentName());
-            s.setStudentEmail(student.getStudentEmail());
-            return new ResponseEntity<>(studentRepo.save(s), HttpStatus.OK);
+    @PutMapping(value="/{id}")
+    public ResponseEntity<Student> updateStudent(@PathVariable int id, @Valid @RequestBody Student student){
+        if(studentService.isStudentExists(id)){
+            studentService.updateStudent(id, student);
+            return ResponseEntity.ok(student);
         }
-        return new ResponseEntity<Student>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-
-    @RequestMapping(value="/api/students/{studentID}", method = RequestMethod.DELETE)
-    public ResponseEntity<Student> deleteStudent(@PathVariable int studentID) {
-        Optional<Student> currStudentPresent = studentRepo.findById(studentID);
-        if(currStudentPresent.isPresent()){
-            studentRepo.delete(currStudentPresent.get());
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<Student>(HttpStatus.NOT_FOUND);
-    }
-
 }

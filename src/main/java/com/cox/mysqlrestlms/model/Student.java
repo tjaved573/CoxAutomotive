@@ -1,28 +1,23 @@
 package com.cox.mysqlrestlms.model;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+
 @Entity
-//@AllArgsConstructor
-//@NoArgsConstructor
-//@Data
 public class Student {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="studentId")
+    //@GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name="studentId", updatable=false, nullable=false)
     private int studentId;
 
-    @Column (name = "studentName")
+    @Column (name = "studentName", nullable = false)
     @NotBlank(message = "StudentName is mandatory")
     private String studentName;
 
-    @Column(name = "studentEmail")
+    @Column(name = "studentEmail", nullable = false)
     @NotBlank(message = "StudentEmail is mandatory")
     private String studentEmail;
 

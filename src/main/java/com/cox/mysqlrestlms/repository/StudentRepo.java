@@ -1,4 +1,4 @@
-package com.cox.mysqlrestlms.repo;
+package com.cox.mysqlrestlms.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

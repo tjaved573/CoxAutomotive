@@ -31,7 +31,7 @@ class StudentServiceTest {
 
     @BeforeEach
     void setUp() {
-        student1 = new Student(12,"asdfasf", "Sdfsaf@yahoo.com");
+        student1 = new Student(12,"random", "randomtesting@yahoo.com");
         student2 = new Student(13,"taimoor", "taimoor@yahoo.com");
     }
 
@@ -48,17 +48,31 @@ class StudentServiceTest {
 
     @Test
     void createStudent() {
+
+        // Test1: Create student already existing in database
+        // Test2:  Create Valid user
+        // Test3: Create user with missing param name
+        // Test4: Create user with missing param email
+
     }
 
     @Test
     void findStudentById() {
+
+        // Test1: Find student with valid id
+        // Test2: Find student not existing in db
     }
 
     @Test
     void isStudentExists() {
+        // Test 1: Find Student with Valid ID
+        // Test 2: Find student with invalid ID
+
     }
 
     @Test
     void deleteStudent() {
+        // Test 1: Delete Student with Valid ID
+        // Test 2: Delete student with invalid ID
     }
 }
